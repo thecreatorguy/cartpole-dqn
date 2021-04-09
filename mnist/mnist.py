@@ -1,3 +1,6 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
@@ -44,12 +47,13 @@ def normalize_image(image: tf.Tensor) -> tf.Tensor:
     return tf.reshape(image, (1, 28*28))
 
 def test():
-    ds = tfds.load('mnist', split='train', shuffle_files=True)
-    mc = MnistClassifier(2, 15)
+    ds_train = tfds.load('mnist', split='train', shuffle_files=True)
+    mc = MnistClassifier(1, 30)
 
     opt = tf.keras.optimizers.SGD(learning_rate=0.1)
     count = 0
-    for row in ds:
+    print('training')
+    for row in ds_train:
         image = normalize_image(row['image'])
         label = row['label']
         with tf.GradientTape() as tape:
@@ -59,13 +63,17 @@ def test():
         
         count += 1
         if (count % 10000 == 0):
-            print(count)
+            print("trained with", count)
     
-    for row in ds.take(5):
+    print()
+    print('testing:')
+    ds_test = tfds.load('mnist', split='test', shuffle_files=True)
+    for row in ds_test.take(5):
         image = normalize_image(row['image'])
         label = row['label']
         out = mc(image)
-        print(out, tf.argmax(out[0]), label)
+        print("predicted: {0}, received: {1}".format(tf.argmax(out[0]).numpy(), label.numpy()))
+
 
 if __name__ == '__main__':
     test()
