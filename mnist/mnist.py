@@ -14,6 +14,7 @@ def loss_class(val: tf.Tensor, expected: tf.Tensor):
     # print(compare)
     compare[0, expected] = 1
     # print(compare)
+    tf.nn.l2_l
 
     return tf.losses.MSE(val, compare)
 
