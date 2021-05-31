@@ -1,4 +1,9 @@
+"""
+This is my first attempt at using TensorFlow 2 to solve the MNIST handwritten digit classifier. I used
+this resource: http://neuralnetworksanddeeplearning.com/chap1.html
+"""
 import os
+import sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import numpy as np
@@ -14,9 +19,9 @@ def loss_class(val: tf.Tensor, expected: tf.Tensor):
     # print(compare)
     compare[0, expected] = 1
     # print(compare)
-    tf.nn.l2_l
+    # tf.nn.l2_l
 
-    return tf.losses.MSE(val, compare)
+    return tf.reduce_sum(tf.square(val - compare)) 
 
 class MnistClassifier(tf.keras.models.Sequential):
 
@@ -52,6 +57,8 @@ def test():
     mc = MnistClassifier(1, 30)
 
     opt = tf.keras.optimizers.SGD(learning_rate=0.1)
+    fw = tf.summary.create_file_writer('./logs/try2/' + sys.argv[1])
+    fw.set_as_default()
     count = 0
     print('training')
     for row in ds_train:
@@ -63,8 +70,8 @@ def test():
         opt.apply_gradients(zip(grads, mc.trainable_variables))
         
         count += 1
-        if (count % 10000 == 0):
-            print("trained with", count)
+        if (count % 100 == 0):
+            tf.summary.scalar('loss_mse_train', loss, step=count)
     
     print()
     print('testing:')
